@@ -1,37 +1,46 @@
-// Leonida Legend — the hand-in program for the gta6-trophy-guide-01 entry (Node 22, standard
-// library only). The guide itself is the static app/ folder next to this file: app/index.html opens
-// in a desktop browser with the network off, its modules and styles are plain files under app/, and
-// its trophy data — all 55 official trophies with a cited guide each — is app/data/trophies.json.
-// This program hands the guide in: it copies app/ and screenshots/ from beside this file into the
-// output directory and writes dossier.json there, the summary the judge reads (the screenshots, the
-// first load's files and bytes, and the source), built with the vendored make.fun library.
+// Leonida Legend — hand-in program for the gta6-trophy-guide-01 entry.
 //
-// vendor/makefun-frontend.ts is the kit's copy, unchanged: the scorer rebuilds the dossier with its
-// own copy of the same library and requires the two to match byte for byte.
+// The guide is a folder of plain static files in app/ next to this file:
+// open app/index.html in a desktop browser and it runs with the network
+// off, reading its 55 trophies and their guides from
+// app/data/trophies.json. This program's only job is to hand that guide
+// in the way the grader expects: copy app/ and screenshots/ into the
+// output folder and write a dossier.json there, built by the vendored
+// make.fun library in vendor/makefun-frontend.ts (left byte-for-byte as
+// the kit shipped it, because the scorer rebuilds the dossier with its
+// own copy and demands an exact match).
 //
-// Run it the way the grader does, outside the grader's container, with MAKEFUN_OUTPUT_DIR standing
-// in for /output:
+// Run it like the grader does, from the repository root:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
-// Serve the guide locally for a look with `node serve.ts`, then open http://localhost:8080.
+// MAKEFUN_OUTPUT_DIR stands in for /output outside the grader.
+// Preview the guide itself with: node serve.ts
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-frontend.ts';
 
-const here = fileURLToPath(new URL('.', import.meta.url));
-const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const repoRoot = fileURLToPath(new URL('.', import.meta.url));
+const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-mkdirSync(out, { recursive: true });
-cpSync(join(here, 'app'), join(out, 'app'), { recursive: true });
-mkdirSync(join(out, 'screenshots'), { recursive: true });
-if (existsSync(join(here, 'screenshots'))) cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
+// Copy the two payloads. screenshots/ is copied only when present so a
+// local run without shots still produces a dossier for inspection; the
+// gate itself will refuse an entry with fewer than 3 screenshots.
+mkdirSync(outputDir, { recursive: true });
+cpSync(join(repoRoot, 'app'), join(outputDir, 'app'), { recursive: true });
+mkdirSync(join(outputDir, 'screenshots'), { recursive: true });
+if (existsSync(join(repoRoot, 'screenshots'))) {
+  cpSync(join(repoRoot, 'screenshots'), join(outputDir, 'screenshots'), { recursive: true });
+}
 
-// The gate's own caps, so a bad entry fails here instead of in front of the scorer: at most 4
-// screenshots and none over 256 KiB; app/ at most 993 files and directories and 48 MiB in all, so
-// app/ plus screenshots/ plus dossier.json stay under the platform's own 1,000-entry, 64 MiB cap
-// on /output. Only text_max_bytes changes the dossier's bytes; the other limits only refuse.
-writeFileSync(
-  join(out, 'dossier.json'),
-  buildDossier(out, { text_max_bytes: 163840, screenshots: { max: 4, max_bytes: 262144 }, app_max_files: 993, app_max_bytes: 50331648 }),
-);
+// Build the dossier under the scorer's caps: 160 KiB of text, at most 4
+// screenshots of at most 256 KiB each, app/ at most 993 entries and
+// 48 MiB — keeping the whole output under the platform's own limits.
+const dossier = buildDossier(outputDir, {
+  text_max_bytes: 163840,
+  screenshots: { max: 4, max_bytes: 262144 },
+  app_max_files: 993,
+  app_max_bytes: 50331648,
+});
+writeFileSync(join(outputDir, 'dossier.json'), dossier);
+console.log('Leonida Legend handed in: app/ and screenshots/ copied to ' + outputDir + ', dossier.json written (' + dossier.length + ' bytes).');

@@ -1,64 +1,64 @@
-// A tiny static server for app/ (Node 22, standard library only), so the guide can be run locally without a
-// build step: `node serve.ts` serves app/ on http://localhost:8080 (`--port <n>` for another port). It sends the MIME
-// types a browser needs, refuses any path outside app/, and otherwise does nothing clever: this is a development
-// convenience, not a web server for the internet.
-import { createReadStream, statSync } from 'node:fs';
+// A small local preview server for the Leonida Legend guide.
+// Usage: node serve.ts [--port 8123]
+// It serves the files in app/ on 127.0.0.1 with the content types a
+// browser needs, answers 404 for anything missing, and refuses paths
+// that try to climb out of app/. Development use only.
+import { readFileSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(fileURLToPath(new URL('./app', import.meta.url)));
-const args = process.argv.slice(2);
-const portIndex = args.indexOf('--port');
-const requested = portIndex === -1 ? 8080 : Number(args[portIndex + 1]);
-const port = Number.isInteger(requested) && requested > 0 && requested < 65536 ? requested : 8080;
+const appRoot = resolve(fileURLToPath(new URL('./app', import.meta.url)));
 
-const MIME: Record<string, string> = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.svg': 'image/svg+xml',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.webp': 'image/webp',
-  '.ico': 'image/x-icon',
-  '.woff2': 'font/woff2',
-  '.webmanifest': 'application/manifest+json',
-};
+const argv = process.argv.slice(2);
+const portFlag = argv.indexOf('--port');
+const parsedPort = portFlag >= 0 ? Number(argv[portFlag + 1]) : 8080;
+const listenPort = Number.isInteger(parsedPort) && parsedPort > 0 && parsedPort < 65536 ? parsedPort : 8080;
 
-createServer((request, response) => {
-  const url = new URL(request.url ?? '/', 'http://localhost');
-  let pathname: string;
+const CONTENT_TYPES = new Map([
+  ['.html', 'text/html; charset=utf-8'],
+  ['.css', 'text/css; charset=utf-8'],
+  ['.js', 'text/javascript; charset=utf-8'],
+  ['.mjs', 'text/javascript; charset=utf-8'],
+  ['.json', 'application/json; charset=utf-8'],
+  ['.png', 'image/png'],
+  ['.jpg', 'image/jpeg'],
+  ['.jpeg', 'image/jpeg'],
+  ['.svg', 'image/svg+xml'],
+  ['.ico', 'image/x-icon'],
+  ['.woff2', 'font/woff2'],
+]);
+
+const server = createServer((req, res) => {
+  let rawPath;
   try {
-    pathname = decodeURIComponent(url.pathname);
+    rawPath = decodeURIComponent(new URL(req.url ?? '/', 'http://127.0.0.1').pathname);
   } catch {
-    response.writeHead(400).end('bad request');
+    res.writeHead(400).end('bad request');
     return;
   }
-  if (pathname.endsWith('/')) pathname += 'index.html';
-  const file = resolve(join(root, normalize(pathname)));
-  if (file !== root && !file.startsWith(root + sep)) {
-    response.writeHead(403).end('forbidden');
+  if (rawPath.endsWith('/')) rawPath += 'index.html';
+  const target = resolve(join(appRoot, normalize(rawPath)));
+  if (target !== appRoot && !target.startsWith(appRoot + sep)) {
+    res.writeHead(403).end('forbidden');
     return;
   }
-  let size: number;
+  let body;
   try {
-    const stats = statSync(file);
-    if (!stats.isFile()) throw new Error('not a file');
-    size = stats.size;
+    if (!statSync(target).isFile()) throw new Error('not a file');
+    body = readFileSync(target);
   } catch {
-    response.writeHead(404).end('not found');
+    res.writeHead(404).end('not found');
     return;
   }
-  response.writeHead(200, {
-    'content-type': MIME[extname(file).toLowerCase()] ?? 'application/octet-stream',
-    'content-length': size,
+  res.writeHead(200, {
+    'content-type': CONTENT_TYPES.get(extname(target).toLowerCase()) ?? 'application/octet-stream',
+    'content-length': body.length,
     'cache-control': 'no-store',
   });
-  createReadStream(file).pipe(response);
-}).listen(port, '127.0.0.1', () => {
-  console.log(`app/ is on http://localhost:${port}`);
+  res.end(body);
+});
+
+server.listen(listenPort, '127.0.0.1', () => {
+  console.log('app/ is on http://localhost:' + listenPort);
 });
