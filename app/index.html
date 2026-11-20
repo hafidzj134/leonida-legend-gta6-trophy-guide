@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leonida Legend — GTA 6 Trophy Guide &amp; Tracker</title>
+<meta name="description" content="An offline guide and tracker for all 55 GTA 6 trophies: checklist, roadmap to the platinum, missables, and a cited guide for every trophy.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div>
+    <p class="kicker">Grand Theft Auto VI &middot; PlayStation 5 &middot; offline guide</p>
+    <h1>Leonida Legend</h1>
+    <p class="lede">Every one of the 55 trophies, with a guide that cites its sources — and a tracker that remembers your progress.</p>
+  </div>
+  <div class="progress-card" id="progressCard" aria-live="polite">
+    <div class="big-count"><span id="earnedCount">0</span><span class="of">/ 55</span></div>
+    <div class="bar" role="progressbar" aria-label="Trophies earned" aria-valuemin="0" aria-valuemax="55" aria-valuenow="0" id="progressBar"><span id="progressFill"></span></div>
+    <p id="progressText">0% to the platinum</p>
+    <p class="grade-line" id="gradeLine"></p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Guide sections">
+  <button type="button" data-view="checklist" class="tab active" id="tab-checklist">Checklist</button>
+  <button type="button" data-view="roadmap" class="tab" id="tab-roadmap">Roadmap to Platinum</button>
+  <button type="button" data-view="missables" class="tab" id="tab-missables">Missables <span class="pill" id="missablePill">1</span></button>
+  <button type="button" data-view="sources" class="tab" id="tab-sources">Sources &amp; method</button>
+</nav>
+
+<section id="view-checklist" class="view">
+  <div class="toolbar">
+    <label class="search">Search <input id="search" type="search" placeholder="Search trophies" autocomplete="off"></label>
+    <label>Kind
+      <select id="kindFilter">
+        <option value="all">All kinds</option>
+        <option value="story">Story</option>
+        <option value="side">Side quests</option>
+        <option value="collectibles">Collectibles</option>
+        <option value="activities">Activities</option>
+        <option value="completion">100% completion</option>
+        <option value="platinum">Platinum</option>
+        <option value="missable">Missable only</option>
+        <option value="online">Online</option>
+      </select>
+    </label>
+    <label>Grade
+      <select id="gradeFilter">
+        <option value="all">All grades</option>
+        <option value="platinum">Platinum</option>
+        <option value="gold">Gold</option>
+        <option value="silver">Silver</option>
+        <option value="bronze">Bronze</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" id="spoilerToggle" checked> Hide story spoilers</label>
+    <label class="check"><input type="checkbox" id="hideEarned"> Hide earned</label>
+    <span class="spacer"></span>
+    <button type="button" id="exportBtn">Export progress</button>
+    <label class="import-btn">Import progress <input id="importFile" type="file" accept="application/json,.json"></label>
+    <button type="button" id="resetBtn" class="quiet">Reset</button>
+  </div>
+  <p class="status-line" id="statusLine"></p>
+  <div class="layout">
+    <ul class="trophy-list" id="trophyList"></ul>
+    <aside class="detail" id="detail" aria-live="polite"></aside>
+  </div>
+</section>
+
+<section id="view-roadmap" class="view" hidden>
+  <h2>The road to the platinum</h2>
+  <p class="standfirst">One playthrough, about 200 hours, difficulty 4 out of 10. No trophy is online and none needs a second run — but keep a save at the start of each chapter, because there is no mission replay.</p>
+  <dl class="facts">
+    <div><dt>Difficulty</dt><dd>4 / 10</dd></div>
+    <div><dt>Time to platinum</dt><dd>~200 hours</dd></div>
+    <div><dt>Playthroughs</dt><dd>1</dd></div>
+    <div><dt>Online trophies</dt><dd>0 — all 55 are single-player</dd></div>
+    <div><dt>Missable</dt><dd>Potentially 1</dd></div>
+    <div><dt>Cheats</dt><dd>Cheats disable trophies and saving</dd></div>
+  </dl>
+  <div id="roadmapStages"></div>
+  <p class="note">Saves: the game gives 15 manual save slots plus 1 autosave. Keep a save at the start and end of each chapter (10 saves), then rotate the remaining 5 for free-roam cleanup.</p>
+</section>
+
+<section id="view-missables" class="view" hidden>
+  <h2>Missable trophies</h2>
+  <p class="standfirst">Only one trophy on the whole list can be missed — and even that one is still unconfirmed. Everything else can be cleaned up in free-roam after the story.</p>
+  <div id="missableList"></div>
+  <h3>Nothing else is missable</h3>
+  <ul class="reassure">
+    <li>Optional missions that disappear do not affect any trophy; there are far more than the 100 the checklist wants.</li>
+    <li>Quest givers who go quiet mid-story — Kenton, for example — all come back later, and their quests stay open after the story.</li>
+    <li>Fences that disappear do not matter for trophies; new fences unlock as you go.</li>
+    <li>A few magazine collectibles sit in story buildings that later close, but they also spawn elsewhere and are not needed in full.</li>
+    <li>Time-sensitive quests with an hourglass icon fail after a while, but none of them is tied to a trophy.</li>
+    <li>Strangers &amp; Freaks strands stay in the world after the story.</li>
+  </ul>
+</section>
+
+<section id="view-sources" class="view" hidden>
+  <h2>Sources &amp; method</h2>
+  <p>Every guide in this app is written in our own words for this guide. The facts come from the sources below, named beside each trophy, and no guide text is copied from them. The official names, descriptions and grades are shown exactly as PlayStation publishes them.</p>
+  <ul class="source-list">
+    <li><a href="https://www.powerpyx.com/gta-6-grand-theft-auto-vi-trophy-guide-roadmap/">PowerPyx — GTA 6 Trophy Guide &amp; Roadmap</a> — the how-to for each trophy: chapters and missions, counts, locations and the missable meditation. Difficulty 4/10, about 200 hours, one playthrough.</li>
+    <li><a href="https://www.exophase.com/game/grand-theft-auto-vi-psn/trophies/">Exophase — GTA 6 trophy list</a> — the official trophy names, descriptions and grades.</li>
+    <li><a href="https://psnprofiles.com/trophies/43531-grand-theft-auto-vi">PSNProfiles — GTA 6 trophies</a> — grades and the progress counts PlayStation tracks.</li>
+    <li><a href="https://www.pushsquare.com/guides/gta-6-trophy-guide-and-roadmap">PushSquare — GTA 6 Trophy Guide &amp; Roadmap</a> — the roadmap view: up to 300 hours, 18 card sets with 15 needed for 100%.</li>
+  </ul>
+  <h3>What is still unconfirmed</h3>
+  <p>One trophy, <strong>Bad Luck, I Guess</strong>, has no confirmed trigger yet — the best current lead is the Payday Loans store from the prologue, and its guide says so plainly instead of guessing. The Chapter 1 meditation for <strong>Positive Mental Attitude</strong> is also still unconfirmed as a requirement; the guide tells you to do it anyway, because it is the only chance you get.</p>
+  <h3>About this guide</h3>
+  <p>An unofficial fan guide. It is not affiliated with Rockstar Games, and it shows no Rockstar logo, artwork or game screenshots — the look is our own. It works entirely offline: every file it loads is one of its own, and your progress never leaves your browser unless you export it yourself.</p>
+</section>
+
+<footer>
+  <p>Leonida Legend — an unofficial, offline GTA 6 trophy guide &amp; tracker. 55 trophies: 1 platinum, 2 gold, 6 silver, 46 bronze. 28 hidden on PlayStation until earned. Progress is saved in this browser only.</p>
+</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>
